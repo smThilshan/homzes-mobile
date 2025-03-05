@@ -109,16 +109,22 @@ class PropertyCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(property['title'],
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(property['title'],
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5),
+                    Text(property['price'],
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ],
+                ),
                 SizedBox(height: 5),
                 Text(property['location'],
-                    style: TextStyle(color: Colors.grey)),
-                SizedBox(height: 5),
-                Text(property['price'],
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 85, 56, 56))),
               ],
             ),
           ),
