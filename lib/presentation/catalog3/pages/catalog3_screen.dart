@@ -1,88 +1,97 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homzes/data/models/property_model.dart';
+import 'package:homzes/data/repository/property_repository.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_bloc.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_event.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_state.dart';
 
 class Catalog3Screen extends StatelessWidget {
-  final List<Map<String, dynamic>> properties = [
-    {
-      'image': 'https://source.unsplash.com/random/800x600?house',
-      'beds': '3 Beds',
-      'baths': '2 Bathroom',
-      'title': 'Apartment 4 rooms',
-      'location': 'Russia, Moscow',
-      'price': '\$1250 /mo',
-    },
-    {
-      'image': 'https://source.unsplash.com/random/800x600?modern-house',
-      'beds': '2 Beds',
-      'baths': '3 Bathroom',
-      'title': 'Apartment 3 rooms',
-      'location': 'Russia, Moscow',
-      'price': '\$1430 /mo',
-    },
-  ];
+  const Catalog3Screen({super.key});
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeight * 0.12), // Scalable AppBar
-        child: AppBar(
-          backgroundColor: Colors.green[100],
-          elevation: 0,
-          toolbarHeight: screenHeight * 0.12,
-          leading: IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: () {},
-          ),
-          title: Container(
-            width: screenWidth * 0.8, // Adaptive width
-            height: screenHeight * 0.05, // Adaptive height
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(screenWidth * 0.07),
+    return BlocProvider(
+      create: (context) => PropertyBloc(
+        repository: PropertyRepository(firestore: FirebaseFirestore.instance),
+      )..add(LoadProperties()),
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize:
+              Size.fromHeight(screenHeight * 0.12), // Scalable AppBar
+          child: AppBar(
+            backgroundColor: Colors.green[100],
+            elevation: 0,
+            toolbarHeight: screenHeight * 0.12,
+            leading: IconButton(
+              icon: const Icon(Icons.menu, color: Colors.black),
+              onPressed: () {},
             ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(Icons.search,
-                      color: Colors.black), // Left-aligned search icon
-                  Expanded(
-                    child: TextField(
-                      textAlign: TextAlign.left, // Align text to right
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
-                        isCollapsed: true,
+            title: Container(
+              width: screenWidth * 0.8, // Adaptive width
+              height: screenHeight * 0.05, // Adaptive height
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(screenWidth * 0.07),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(Icons.search,
+                        color: Colors.black), // Left-aligned search icon
+                    Expanded(
+                      child: TextField(
+                        textAlign: TextAlign.left, // Align text to right
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Popular rent offers',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: properties.length,
-                itemBuilder: (context, index) {
-                  return PropertyCard(property: properties[index]);
-                },
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Popular rent offers',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Expanded(
+                child: BlocBuilder<PropertyBloc, PropertyState>(
+                  builder: (context, state) {
+                    if (state is PropertyLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is PropertyLoaded) {
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: state.properties.length,
+                        itemBuilder: (context, index) {
+                          return PropertyCard(
+                              property: state.properties[index]);
+                        },
+                      );
+                    } else if (state is PropertyError) {
+                      return Center(child: Text(state.message));
+                    }
+                    return const Center(child: Text("No properties available"));
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -90,9 +99,9 @@ class Catalog3Screen extends StatelessWidget {
 }
 
 class PropertyCard extends StatelessWidget {
-  final Map<String, dynamic> property;
+  final Property property;
 
-  PropertyCard({required this.property});
+  const PropertyCard({super.key, required this.property});
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +116,7 @@ class PropertyCard extends StatelessWidget {
               ClipRRect(
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
-                // child: Image.network(property['image'],
-                //     height: 200, width: double.infinity, fit: BoxFit.cover),
-                child: Image.asset("assets/images/houseimage2.jpg",
+                child: Image.network(property.image,
                     height: 200, width: double.infinity, fit: BoxFit.cover),
               ),
               Positioned(
@@ -117,9 +124,9 @@ class PropertyCard extends StatelessWidget {
                 left: 10,
                 child: Row(
                   children: [
-                    _infoTag(property['beds']),
+                    _infoTag("${property.bed} Bed"),
                     const SizedBox(width: 5),
-                    _infoTag(property['baths']),
+                    _infoTag("${property.bathroom} Bathroom"),
                   ],
                 ),
               ),
@@ -139,17 +146,17 @@ class PropertyCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(property['title'],
+                    Text(property.title,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 5),
-                    Text(property['price'],
+                    Text('\$${property.price.toString()} / mo',
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 const SizedBox(height: 5),
-                Text(property['location'],
+                Text(property.location,
                     style: const TextStyle(
                         color: Color.fromARGB(255, 85, 56, 56))),
               ],

@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homzes/data/repository/property_repository.dart';
 import 'package:homzes/presentation/catalog1/bloc/property_bloc.dart';
-import 'package:homzes/presentation/catalog1/pages/catalog1_screen.dart';
-import 'package:homzes/presentation/catalog3/pages/catalog3_screen.dart';
+import 'package:homzes/presentation/welcome/pages/welcome_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
               PropertyRepository(firestore: FirebaseFirestore.instance)),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Catalog3Screen(),
+        home: WelcomeScreen(),
       ),
     );
   }
