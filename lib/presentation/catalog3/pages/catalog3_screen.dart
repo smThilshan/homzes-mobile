@@ -22,32 +22,58 @@ class Catalog3Screen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green[100],
-        elevation: 0,
-        title: TextField(
-          decoration: InputDecoration(
-            hintText: 'Search',
-            prefixIcon: Icon(Icons.search),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(screenHeight * 0.12), // Scalable AppBar
+        child: AppBar(
+          backgroundColor: Colors.green[100],
+          elevation: 0,
+          toolbarHeight: screenHeight * 0.12,
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onPressed: () {},
+          ),
+          title: Container(
+            width: screenWidth * 0.8, // Adaptive width
+            height: screenHeight * 0.05, // Adaptive height
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(screenWidth * 0.07),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.search,
+                      color: Colors.black), // Left-aligned search icon
+                  Expanded(
+                    child: TextField(
+                      textAlign: TextAlign.left, // Align text to right
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-        actions: [IconButton(icon: Icon(Icons.menu), onPressed: () {})],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Popular rent offers',
+            const Text('Popular rent offers',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: properties.length,
@@ -72,14 +98,15 @@ class PropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
                 // child: Image.network(property['image'],
                 //     height: 200, width: double.infinity, fit: BoxFit.cover),
                 child: Image.asset("assets/images/houseimage2.jpg",
@@ -91,12 +118,12 @@ class PropertyCard extends StatelessWidget {
                 child: Row(
                   children: [
                     _infoTag(property['beds']),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     _infoTag(property['baths']),
                   ],
                 ),
               ),
-              Positioned(
+              const Positioned(
                 top: 10,
                 right: 10,
                 child:
@@ -113,18 +140,18 @@ class PropertyCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(property['title'],
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(property['price'],
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(property['location'],
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 85, 56, 56))),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 85, 56, 56))),
               ],
             ),
           ),
@@ -135,13 +162,13 @@ class PropertyCard extends StatelessWidget {
 
   Widget _infoTag(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(text,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
     );
   }
 }

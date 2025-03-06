@@ -39,7 +39,7 @@ dependencies:
   cloud_firestore:   # Firestore database
   firebase_auth:   #  If you need authentication
   flutter_bloc:   # For state management
-  # equatable:
+  equatable:
 
 dev_dependencies:
   flutter_test:

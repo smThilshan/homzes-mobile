@@ -1,56 +1,83 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:homzes/data/models/property_model.dart';
+import 'package:homzes/data/repository/property_repository.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_bloc.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_event.dart';
+import 'package:homzes/presentation/catalog1/bloc/property_state.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
+class Catalog1Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const CustomAppBar(),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SectionHeader(title: 'Featured'),
-                    SizedBox(height: 20),
-                    SizedBox(
-                      height: 150,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: featuredProperties.length,
-                        itemBuilder: (context, index) {
-                          return PropertyCard(
-                              property: featuredProperties[index]);
-                        },
+    return BlocProvider(
+      create: (context) => PropertyBloc(
+        repository: PropertyRepository(
+          firestore: FirebaseFirestore.instance,
+        ),
+      )..add(LoadProperties()),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CustomAppBar(),
+            Expanded(
+              child: BlocBuilder<PropertyBloc, PropertyState>(
+                builder: (context, state) {
+                  if (state is PropertyLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is PropertyLoaded) {
+                    return SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SectionHeader(title: 'Featured'),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              height: 150,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: state.properties.length,
+                                itemBuilder: (context, index) {
+                                  return PropertyCard(
+                                    // property: state.properties[index],
+                                    property: state.properties[index],
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const SectionHeader(title: 'New Offers'),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              height: 220,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: state.properties.length,
+                                itemBuilder: (context, index) {
+                                  return PropertyCard(
+                                    property: state.properties[index],
+                                    isLarge: true,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    SectionHeader(title: 'New Offers'),
-                    SizedBox(height: 20),
-                    // PropertyCard(property: newOffers.first, isLarge: true),
-                    SizedBox(
-                      height: 220,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: newOffers.length,
-                          itemBuilder: (context, index) {
-                            return PropertyCard(
-                                property: newOffers[index], isLarge: true);
-                          }),
-                    )
-                  ],
-                ),
+                    );
+                  } else if (state is PropertyError) {
+                    return Center(child: Text(state.message));
+                  }
+                  return const Center(child: Text("No properties available"));
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -72,12 +99,15 @@ class CustomAppBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.menu, color: Colors.black),
-                Text("Hi, Stanislav",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Icon(Icons.menu, color: Colors.black),
+                const Text(
+                  "Hi, Thilshan",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 CircleAvatar(
-                    backgroundColor: Colors.grey.shade400, child: Text("S"))
+                  backgroundColor: Colors.grey.shade400,
+                  child: const Text("T"),
+                ),
               ],
             ),
           ),
@@ -85,8 +115,8 @@ class CustomAppBar extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "Search Karanna",
-                prefixIcon: Icon(Icons.search),
+                hintText: "Search",
+                prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -117,7 +147,7 @@ class SectionHeader extends StatelessWidget {
         ),
         const Text(
           'View all',
-          style: TextStyle(color: Colors.blue),
+          style: TextStyle(color: Colors.black),
         ),
       ],
     );
@@ -139,8 +169,7 @@ class PropertyCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         image: DecorationImage(
-          // image: NetworkImage(property.imageUrl),
-          image: AssetImage("assets/images/house_image1.png"),
+          image: NetworkImage(property.image), // Load image from Firestore
           fit: BoxFit.cover,
         ),
       ),
@@ -156,7 +185,8 @@ class PropertyCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                property.price != null ? '\$${property.price}' : 'N/A',
+                // property.price != null ? '\$${property.price}' : 'N/A',
+                '\$${property.title}',
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold),
               ),
@@ -167,57 +197,3 @@ class PropertyCard extends StatelessWidget {
     );
   }
 }
-
-class Property {
-  final String imageUrl;
-  final String title;
-  final double price;
-
-  Property({required this.imageUrl, required this.title, required this.price});
-}
-
-final List<Property> featuredProperties = [
-  Property(
-      imageUrl: 'https://source.unsplash.com/200x200/?house1',
-      title: 'Apartment 3 rooms',
-      price: 580),
-  Property(
-      imageUrl: 'https://source.unsplash.com/200x200/?house2',
-      title: 'Apartment 4 rooms',
-      price: 750),
-  Property(
-      imageUrl: 'https://source.unsplash.com/200x200/?house2',
-      title: 'Apartment 4 rooms',
-      price: 750),
-  Property(
-      imageUrl: 'https://source.unsplash.com/200x200/?house2',
-      title: 'Apartment 4 rooms',
-      price: 750),
-  Property(
-      imageUrl: 'https://source.unsplash.com/200x200/?house2',
-      title: 'Apartment 4 rooms',
-      price: 750),
-];
-
-final List<Property> newOffers = [
-  Property(
-      imageUrl: 'https://source.unsplash.com/400x300/?house3',
-      title: 'Apartment 3 rooms',
-      price: 1250),
-  Property(
-      imageUrl: 'https://source.unsplash.com/400x300/?house3',
-      title: 'Apartment 3 rooms',
-      price: 1250),
-  Property(
-      imageUrl: 'https://source.unsplash.com/400x300/?house3',
-      title: 'Apartment 3 rooms',
-      price: 1250),
-  Property(
-      imageUrl: 'https://source.unsplash.com/400x300/?house3',
-      title: 'Apartment 3 rooms',
-      price: 1250),
-  Property(
-      imageUrl: 'https://source.unsplash.com/400x300/?house3',
-      title: 'Apartment 3 rooms',
-      price: 1250),
-];
