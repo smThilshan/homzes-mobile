@@ -16,6 +16,7 @@ class Catalog3Screen extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return BlocProvider(
+      // Providing PropertyBloc to manage property data
       create: (context) => PropertyBloc(
         repository: PropertyRepository(firestore: FirebaseFirestore.instance),
       )..add(LoadProperties()),
@@ -70,6 +71,7 @@ class Catalog3Screen extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Expanded(
+                // Using bloc builder to only change needed states
                 child: BlocBuilder<PropertyBloc, PropertyState>(
                   builder: (context, state) {
                     if (state is PropertyLoading) {
@@ -98,6 +100,7 @@ class Catalog3Screen extends StatelessWidget {
   }
 }
 
+// widget
 class PropertyCard extends StatelessWidget {
   final Property property;
 
@@ -167,6 +170,7 @@ class PropertyCard extends StatelessWidget {
     );
   }
 
+  // Widget to show small property info tags
   Widget _infoTag(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

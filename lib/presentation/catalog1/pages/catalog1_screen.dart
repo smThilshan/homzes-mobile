@@ -154,14 +154,14 @@ class SectionHeader extends StatelessWidget {
             Navigator.push(
               context,
               PageRouteBuilder(
-                transitionDuration: Duration(milliseconds: 500),
+                transitionDuration: const Duration(milliseconds: 500),
                 pageBuilder: (context, animation, secondaryAnimation) =>
-                    Catalog3Screen(),
+                    const Catalog3Screen(),
                 transitionsBuilder:
                     (context, animation, secondaryAnimation, child) {
                   return SlideTransition(
                     position: Tween<Offset>(
-                      begin: Offset(1.0, 0.0), // Slide from right
+                      begin: const Offset(1.0, 0.0), // Slide from right
                       end: Offset.zero,
                     ).animate(animation),
                     child: child,
