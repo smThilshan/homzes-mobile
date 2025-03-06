@@ -6,6 +6,7 @@ import 'package:homzes/data/repository/property_repository.dart';
 import 'package:homzes/presentation/catalog1/bloc/property_bloc.dart';
 import 'package:homzes/presentation/catalog1/bloc/property_event.dart';
 import 'package:homzes/presentation/catalog1/bloc/property_state.dart';
+import 'package:homzes/presentation/catalog3/pages/catalog3_screen.dart';
 
 class Catalog1Screen extends StatelessWidget {
   @override
@@ -145,9 +146,34 @@ class SectionHeader extends StatelessWidget {
           title,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        const Text(
-          'View all',
-          style: TextStyle(color: Colors.black),
+        GestureDetector(
+          onTap: () {
+            // Navigator.push(context,
+            //     MaterialPageRoute(builder: (context) => Catalog3Screen()));
+
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                transitionDuration: Duration(milliseconds: 500),
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    Catalog3Screen(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: Offset(1.0, 0.0), // Slide from right
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+              ),
+            );
+          },
+          child: const Text(
+            'View all',
+            style: TextStyle(color: Colors.black),
+          ),
         ),
       ],
     );
